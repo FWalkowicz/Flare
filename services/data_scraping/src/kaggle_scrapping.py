@@ -4,6 +4,14 @@ import pandas as pd
 
 
 class KaggleScrapping:
+    """
+    A class used to interact with Kaggle's API.
+
+    Methods
+    -------
+    search(dataset_name: str) -> pd.DataFrame:
+        Searches Kaggle for datasets matching the provided name and filters them to include only those with .csv files.
+    """
     def __init__(self):
         try:
             self.api = KaggleApi()
@@ -12,6 +20,12 @@ class KaggleScrapping:
             print("Can't connect to Kaggle")
 
     def search(self, dataset_name: str) -> pd.DataFrame:
+        """
+        Search for dataset on Kaggle with provided dataset name
+
+        :param dataset_name: (str) The name or key word to search on Kaggle
+        :return: (pd.DataFrame) A dataframe containing dataset name and files
+        """
         dataset_list = self.api.dataset_list(search=dataset_name)
         datasets_with_csv_files = []
 
@@ -28,6 +42,9 @@ class KaggleScrapping:
         df_with_csv_files = pd.DataFrame(datasets_with_csv_files)
 
         return df_with_csv_files
+
+    def download(self, dataset_name: str):
+        pass
 
 
 if __name__ == '__main__':
