@@ -1,3 +1,5 @@
+import os
+
 import init.kaggle_init
 from kaggle.api.kaggle_api_extended import KaggleApi
 import pandas as pd
@@ -43,10 +45,17 @@ class KaggleScrapping:
 
         return df_with_csv_files
 
-    def download(self, dataset_name: str):
+    def download(self, dataset_name: str, file_name: str):
+        self.api.dataset_download_file(dataset_name, file_name, path='./utils')
+        os.rename('./utils/'+file_name, './utils/dataset.csv')
+        dataset = pd.read_csv('./utils/dataset.csv')
+        return dataset.head(25)
+
+    def cut(self):
         pass
 
 
 if __name__ == '__main__':
     scraper = KaggleScrapping()
     print(scraper.search('pokemon'))
+    print(scraper.download('abcsds/pokemon', 'Pokemon.csv'))
