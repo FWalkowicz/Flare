@@ -38,6 +38,7 @@ class KaggleScrapping:
             if csv_files:
                 datasets_with_csv_files.append({
                     'dataset_ref': dataset.ref,
+                    'dataset_subtitle': dataset.subtitle,
                     'files': csv_files
                 })
 
@@ -48,14 +49,16 @@ class KaggleScrapping:
     def download(self, dataset_name: str, file_name: str):
         self.api.dataset_download_file(dataset_name, file_name, path='./utils')
         os.rename('./utils/'+file_name, './utils/dataset.csv')
-        dataset = pd.read_csv('./utils/dataset.csv')
-        return dataset.head(25)
+        dataset = pd.read_csv('./utils/dataset.csv').dropna()
+        return dataset
 
-    def cut(self):
-        pass
+    @staticmethod
+    def cut(data: pd.DataFrame, indexes_to_drop: list) -> pd.DataFrame:
+        dataset = data.drop(data.columns[indexes_to_drop], axis=1)
+        return dataset
 
 
 if __name__ == '__main__':
     scraper = KaggleScrapping()
     print(scraper.search('pokemon'))
-    print(scraper.download('abcsds/pokemon', 'Pokemon.csv'))
+    print(scraper.download('abcsds/pokemon', 'Pokemon.csv').head(25))
