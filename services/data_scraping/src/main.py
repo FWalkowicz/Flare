@@ -65,7 +65,6 @@ def download(dataset_info: Dataset_to_download):
     :return: JSON
         A JSON list of the first 25 rows of the downloaded dataset.
     """
-    print(dataset_info)
     dataset = scraper.download(dataset_name=dataset_info.ref_name, file_name=dataset_info.file_name).head(25)
     dataset_json = dataset.to_json(orient="records")
     parsed = json.loads(dataset_json)
