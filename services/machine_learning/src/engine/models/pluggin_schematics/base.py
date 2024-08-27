@@ -1,7 +1,7 @@
 """
 This module contains a definition for:
 - Base pluggable model - `BaseModel` - your plugin's model should inherit from this class,
-- Model data object that defines saveable model state.
+- Model data object that defines saveable model store.
 """
 
 from abc import ABCMeta, abstractmethod, abstractproperty
@@ -44,7 +44,7 @@ class BaseModel(metaclass=ABCMeta):
     @abstractmethod
     def load(self, model_state: ModelData):
         """
-        A method that loads data from the saved state.
+        A method that loads data from the saved store.
         """
         pass
 

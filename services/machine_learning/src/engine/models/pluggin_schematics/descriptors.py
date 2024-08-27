@@ -1,81 +1,82 @@
 """
-This module contains a definition for:
-- Base pluggable model - `BaseModel` - your plugin's model should inherit from this class,
-- Model data object that defines saveable model state.
+This module defines descriptors - use them in description methods to create a dictionary, that contains all the neccessary fields needed for your model to function.
+
+All available descriptors:
+- `IntRange` for integer values in certain range,
+- `Text` for text,
+- `Int` for integers with unlimited range,
+- `ChooseOne` for values from a concrete list,
+- `Image` for image-like input,
+- `List` for list of inputs.
 """
 
-from abc import ABCMeta, abstractmethod, abstractproperty
-from typing import TypedDict
-from jsons import dump as json_export
-from .descriptors import Descriptor
-from typing import Dict
+from abc import ABC, abstractmethod
+from typing import List
+import jsons
 
-
-class ModelData(TypedDict):
-    modelName: str
-    params: dict
-    checkpoint: any
-
-
-# TODO add abstract logic for training and inference
-class BaseModel(metaclass=ABCMeta):
-
-    @abstractproperty
-    def dictionary_name(self) -> str:
-        """
-        Name, to which the model will be associated with in API endpoints.
-        """
-        pass
-
+class Descriptor(ABC):
     @abstractmethod
-    def create(self):
-        """
-        A method for creating the model from scratch.
-        """
+    def __init__(self):
         pass
 
-    @abstractmethod
-    def save(self) -> ModelData:
+class IntRange(Descriptor):
+    def __init__(self, description: str, min: int, max: int):
         """
-        A method that returns data from which it can be loaded later.
+        Describes an integer range in which parameter's value has to be.
+        Examples:
+        - Dropout probability,
+        - Amount of neural net layers
         """
-        pass
+        self.type = "ranged"
+        self.description = description
+        self.min = round(min),
+        self.max = round(max)
 
-    @abstractmethod
-    def load(self, model_state: ModelData):
+class Text(Descriptor):
+    def __init__(self, description: str):
         """
-        A method that loads data from the saved state.
+        Describes a text value.
+        Examples:
+        - Model name
         """
-        pass
+        self.type = "string"
+        self.description = description
 
-    @abstractmethod
-    def describe_params(self) -> Dict[str, Descriptor]:
+class Int(Descriptor):
+    def __init__(self, description: str):
         """
-        A method for describing the parameters required for creating the model. Use `Descriptor`s defined in `descriptors` module.
-
-        The expected return value is a dictionary, where keys are parameter names and their values are `Descriptor`s.
+        Describes a numeric value in integer format.
+        Examples:
+        - Amount of neurons in a layer
         """
-        pass
+        self.type = "int"
+        self.description = description
 
-    @abstractmethod
-    def describe_train_data():
+class ChooseOne(Descriptor):
+    def __init__(self, description: str, possible_values: list):
         """
-        A method for describing training dataset sample.
+        Describes a concrete list of values that a parameter can take.
+        Examples:
+        - model's backend architecture,
+        - convolutional kernel size,
+        - activation function used in neurons
         """
-        pass
+        self.description = description
+        self.type = "choose_one"
+        self.possible_values = possible_values
 
-    @abstractmethod
-    def describe_inference_data():
+class Image(Descriptor):
+    def __init__(self, width: int, height: int, channels: int =3):
         """
-        A method to describe model's inference mode input.
+        Describes an image-like input.
         """
-        pass
+        self.width = round(width)
+        self.height = round(height)
+        self.channels = round(channels)
 
-    def get_param_object(self):
-        return json_export(self.describe_params())
-
-    def get_train_data_description(self):
-        return json_export(self.describe_train_data())
-
-    def get_inference_data_description(self):
-        return json_export(self.get_inference_data_description())
+class List(Descriptor):
+    def __init__(self, values: List[Descriptor]):
+        """
+        Describes a list of expected values.
+        """
+        self.values = values
